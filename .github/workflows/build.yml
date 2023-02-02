@@ -1,0 +1,66 @@
+name: Build and release library
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_run:
+    workflows: ["Standard version"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      semver_tag: ${{ steps.check.outputs.semver_tag }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Retrieve tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Set output variables
+        id: check
+        run: |
+          semver_tag=""
+          if [[ "${{ github.ref }}" == refs/heads/* ]]; then
+            semver_tag="$(git tag --points-at HEAD)"
+          fi
+          echo "SemVer tag is: ${semver_tag}"
+          echo "::set-output name=semver_tag::${semver_tag}"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: "(needs.prepare.outputs.semver_tag != '')"
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build
+        run: |
+          npm install
+          npm run build
+          npm pack
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          automatic_release_tag: ${{ needs.prepare.outputs.semver_tag }}
+          draft: false
+          files: |
+            *.tgz

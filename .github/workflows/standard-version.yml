@@ -1,0 +1,39 @@
+name: Standard version
+on:
+  push:
+    branches: [main]
+
+jobs:
+  standardversion:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure committer
+        run: |
+          git config user.name "GitHub Actions Bot (standard-version)"
+          git config user.email "<marcuson.nn90@gmail.com>"
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Standard version
+        run: |
+          npm install
+          npm run release
+
+      - name: Push to GitHub
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          force: false
+          tags: true
+          directory: .
