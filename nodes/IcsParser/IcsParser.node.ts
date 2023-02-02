@@ -15,7 +15,7 @@ export class IcsParser implements INodeType {
 		name: 'icsParser',
 		icon: 'file:icsParser.svg',
 		group: ['transform'],
-		version: 1,
+		version: 1.0,
 		subtitle: 'subtitle here',
 		description: 'Parse ICS (iCal) data.',
 		defaults: {
