@@ -5,7 +5,7 @@ import {
 	INodeTypeDescription,
 	NodeExecutionWithMetadata,
 } from 'n8n-workflow';
-import { lines2tree } from 'icalts';
+import { icsFromString } from '../../utils/ics-parse';
 
 export class IcsParser implements INodeType {
 	static readonly IcsDataField = 'icsData';
@@ -43,8 +43,8 @@ export class IcsParser implements INodeType {
 
 		for (let i = 0; i < items.length; i++) {
 			const icsData = this.getNodeParameter(IcsParser.IcsDataField, i) as string;
-			const parsedData = lines2tree(icsData.split(/\r?\n/));
-			parsedItems.push({ parsedData });
+			const parsedData = icsFromString(icsData);
+			parsedItems.push(parsedData);
 		}
 
 		return [this.helpers.returnJsonArray(parsedItems)];
