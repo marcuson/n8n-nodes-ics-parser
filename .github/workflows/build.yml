@@ -50,13 +50,20 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Build
+      - name: Npm install
         run: |
           npm install
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: |
           npm run build
           npm pack
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: GitHub release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
@@ -64,3 +71,9 @@ jobs:
           draft: false
           files: |
             *.tgz
+
+      - name: NPM Publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: "public"
