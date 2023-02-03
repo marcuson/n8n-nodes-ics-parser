@@ -1,6 +1,6 @@
 {
 	"name": "@marcuson/n8n-nodes-ics-utils",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "N8N nodes to interact with ICS data.",
 	"keywords": [
 		"n8n-community-node-package"
